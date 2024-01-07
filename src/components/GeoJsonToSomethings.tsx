@@ -1,8 +1,8 @@
 // @ts-ignore
-import * as turf from "@turf/turf";
-import { Feature, FeatureCollection, GeoJsonProperties, Point } from "geojson";
-import { Fragment, useCallback, useEffect, useState } from "react";
-import { Layer, Marker, Source, useMap } from "react-map-gl/maplibre";
+import * as turf from '@turf/turf';
+import { Feature, FeatureCollection, GeoJsonProperties, Point } from 'geojson';
+import { Fragment, useCallback, useEffect, useState } from 'react';
+import { Layer, Marker, Source, useMap } from 'react-map-gl/maplibre';
 
 export const GeoJsonToSomethings: React.FC<{
   geojson?: FeatureCollection;
