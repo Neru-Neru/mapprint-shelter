@@ -1,11 +1,11 @@
 'use client';
 
 import { useParams, useSearchParams } from 'next/navigation';
-import { Map, GeolocateControl, NavigationControl, LngLatBounds } from 'react-map-gl/maplibre';
+import { Map, GeolocateControl, NavigationControl, LngLatBounds, LngLat } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import { getOverpassResponseJsonWithCache } from '@/utils/getOverpassResponse';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import osmtogeojson from 'osmtogeojson';
 import { Md5 } from 'ts-md5';
 import { FeatureCollection } from 'geojson';
@@ -14,6 +14,7 @@ import { FaHospital, FaSchool } from 'react-icons/fa';
 
 // @ts-ignore
 import * as turf from '@turf/turf';
+import { MapRef } from 'react-map-gl';
 
 const hospitalsQuery = `
 [out:json][timeout:30000];
@@ -87,6 +88,8 @@ const Page = () => {
     Array<GeoJsonWithStyle>
   >([]);
 
+  const mapRef = useRef<MapRef | undefined>(null);
+
   useEffect(() => {
     const thisEffect = async () => {
       setLoaded(true);
@@ -146,6 +149,35 @@ const Page = () => {
     );
   }, [geoJsonWithStyleList, currentBounds]);
 
+  const addPinImage = useCallback(() => {
+    if (mapRef === undefined) {
+      return;
+    }
+    mapRef.current?.loadImage('/pin.png', (error, image) => {
+      if (error) {
+        throw error;
+      }
+      if (!mapRef.current?.hasImage('pin')) {
+        // @ts-ignore
+        mapRef.current?.addImage('pin', image, { sdf: true });
+      }
+    });
+  }, [mapRef]);
+
+  const onClickMarker = useCallback(
+    (center: LngLat | undefined) => {
+      if (mapRef === undefined || mapRef.current == undefined || center === undefined) {
+        return;
+      }
+      const zoomTo = mapRef.current?.getZoom() < 10 ? 10 : 14;
+      mapRef.current?.flyTo({
+        center: center,
+        zoom: zoomTo,
+      });
+    },
+    [mapRef]
+  );
+
   return (
     <div className="flex h-screen w-screen flex-col sm:flex-row-reverse">
       {process.env.NODE_ENV === 'development' && (
@@ -166,10 +198,20 @@ const Page = () => {
           attributionControl={false}
           onLoad={(e) => {
             setCurrentBounds(e.target.getBounds());
+            addPinImage();
           }}
           onMove={(e) => {
             setCurrentBounds(e.target.getBounds());
           }}
+          onClick={(e) => {
+            if (e.features && e.features.length > 0) {
+              const center = e.lngLat;
+              onClickMarker(center);
+            }
+          }}
+          interactiveLayerIds={['clusters', 'unclustered-point']}
+          // @ts-ignore (TODO: ref, refObjectの型の差異により，TSエラーが出てしまう)
+          ref={mapRef}
         >
           {printMode !== true && (
             <>
