@@ -1,8 +1,6 @@
 // @ts-ignore
-import * as turf from '@turf/turf';
-import { Feature, FeatureCollection, GeoJsonProperties, Point } from 'geojson';
-import { Fragment, useCallback, useEffect, useState } from 'react';
-import { Layer, Marker, Source, useMap } from 'react-map-gl/maplibre';
+import { FeatureCollection } from 'geojson';
+import { Layer, Source, useMap } from 'react-map-gl/maplibre';
 
 export const GeoJsonToSomethings: React.FC<{
   geojson?: FeatureCollection;
@@ -13,7 +11,7 @@ export const GeoJsonToSomethings: React.FC<{
     emoji?: string;
   };
 }> = ({ geojson, emoji, style }) => {
-  // const { current: map } = useMap();
+  const { current: map } = useMap();
 
   // const [currentZoom, setCurrentZoom] = useState<number | undefined>(8);
   // const [opacity, setOpacity] = useState(0.8);
@@ -65,22 +63,18 @@ export const GeoJsonToSomethings: React.FC<{
   //   setFontSize(newFontSize);
   // }, [currentZoom]);
 
-  // const onClickMarker = useCallback(
-  //   (center: Feature<Point, GeoJsonProperties> | undefined) => {
-  //     if (map === undefined || center === undefined) {
-  //       return;
-  //     }
-  //     const zoomTo = map.getZoom() < 10 ? 10 : 14;
-  //     map.flyTo({
-  //       center: [
-  //         center.geometry.coordinates[0],
-  //         center.geometry.coordinates[1],
-  //       ],
-  //       zoom: zoomTo,
-  //     });
-  //   },
-  //   [map]
-  // );
+  // useImperativeHandle(ref, () => ({
+  // onClickMarker(center: Feature<Point, GeoJsonProperties> | undefined) {
+  //   if (map === undefined || center === undefined) {
+  //     return;
+  //   }
+  //   const zoomTo = map.getZoom() < 10 ? 10 : 14;
+  //   map.flyTo({
+  //     center: [center.geometry.coordinates[0], center.geometry.coordinates[1]],
+  //     zoom: zoomTo,
+  //   });
+  // },,
+  // }));
 
   if (geojson === undefined || geojson.features === undefined) {
     return null;
@@ -97,57 +91,41 @@ export const GeoJsonToSomethings: React.FC<{
     >
       <Layer
         {...{
-          id: "clusters",
-          type: "circle",
-          source: "clusterSource",
-          filter: ["has", "point_count"],
+          id: 'clusters',
+          type: 'circle',
+          source: 'clusterSource',
+          filter: ['has', 'point_count'],
           paint: {
-            "circle-color": [
-              "step",
-              ["get", "point_count"],
-              "#51bbd6",
-              100,
-              "#f1f075",
-              750,
-              "#f28cb1",
-            ],
-            "circle-radius": [
-              "step",
-              ["get", "point_count"],
-              20,
-              100,
-              30,
-              750,
-              40,
-            ],
+            'circle-color': ['step', ['get', 'point_count'], '#51bbd6', 100, '#f1f075', 750, '#f28cb1'],
+            'circle-radius': ['step', ['get', 'point_count'], 20, 100, 30, 750, 40],
           },
         }}
       />
 
       <Layer
         {...{
-          id: "cluster-count",
-          type: "symbol",
-          source: "clusterSource",
-          filter: ["has", "point_count"],
+          id: 'cluster-count',
+          type: 'symbol',
+          source: 'clusterSource',
+          filter: ['has', 'point_count'],
           layout: {
-            "text-field": "{point_count_abbreviated}",
-            "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+            'text-field': '{point_count_abbreviated}',
+            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
           },
         }}
       />
 
       <Layer
         {...{
-          id: "unclustered-point",
-          type: "circle",
-          source: "clusterSource",
-          filter: ["!", ["has", "point_count"]],
+          id: 'unclustered-point',
+          type: 'circle',
+          source: 'clusterSource',
+          filter: ['!', ['has', 'point_count']],
           paint: {
-            "circle-color": "#11b4da",
-            "circle-radius": 10,
-            "circle-stroke-width": 1,
-            "circle-stroke-color": "#fff",
+            'circle-color': '#11b4da',
+            'circle-radius': 10,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#fff',
           },
         }}
       />
