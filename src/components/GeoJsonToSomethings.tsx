@@ -63,19 +63,6 @@ export const GeoJsonToSomethings: React.FC<{
   //   setFontSize(newFontSize);
   // }, [currentZoom]);
 
-  // useImperativeHandle(ref, () => ({
-  // onClickMarker(center: Feature<Point, GeoJsonProperties> | undefined) {
-  //   if (map === undefined || center === undefined) {
-  //     return;
-  //   }
-  //   const zoomTo = map.getZoom() < 10 ? 10 : 14;
-  //   map.flyTo({
-  //     center: [center.geometry.coordinates[0], center.geometry.coordinates[1]],
-  //     zoom: zoomTo,
-  //   });
-  // },,
-  // }));
-
   if (geojson === undefined || geojson.features === undefined) {
     return null;
   }
@@ -118,14 +105,18 @@ export const GeoJsonToSomethings: React.FC<{
       <Layer
         {...{
           id: 'unclustered-point',
-          type: 'circle',
+          type: 'symbol',
           source: 'clusterSource',
           filter: ['!', ['has', 'point_count']],
+          layout: {
+            'icon-image': 'pin',
+            'icon-size': 0.5,
+            // geoJson.[i].propertyオブジェクトのメンバを参照できる
+            // (TODO: DBからの避難所geojsonデータにidを追加する必要あり→既存にあった表示されているマップ範囲内でインデックス付けされる機能ではなくなる)
+            'text-field': '{name}',
+          },
           paint: {
-            'circle-color': '#11b4da',
-            'circle-radius': 10,
-            'circle-stroke-width': 1,
-            'circle-stroke-color': '#fff',
+            'icon-color': ' #aa3da2',
           },
         }}
       />

@@ -88,6 +88,8 @@ const Page = () => {
     Array<GeoJsonWithStyle>
   >([]);
 
+  const mapRef = useRef<MapRef | undefined>(null);
+
   useEffect(() => {
     const thisEffect = async () => {
       setLoaded(true);
@@ -147,7 +149,20 @@ const Page = () => {
     );
   }, [geoJsonWithStyleList, currentBounds]);
 
-  const mapRef = useRef<MapRef | undefined>(null);
+  const addPinImage = useCallback(() => {
+    if (mapRef === undefined) {
+      return;
+    }
+    mapRef.current?.loadImage('/pin.png', (error, image) => {
+      if (error) {
+        throw error;
+      }
+      if (!mapRef.current?.hasImage('pin')) {
+        // @ts-ignore
+        mapRef.current?.addImage('pin', image, { sdf: true });
+      }
+    });
+  }, [mapRef]);
 
   const onClickMarker = useCallback(
     (center: LngLat | undefined) => {
@@ -183,6 +198,7 @@ const Page = () => {
           attributionControl={false}
           onLoad={(e) => {
             setCurrentBounds(e.target.getBounds());
+            addPinImage();
           }}
           onMove={(e) => {
             setCurrentBounds(e.target.getBounds());
